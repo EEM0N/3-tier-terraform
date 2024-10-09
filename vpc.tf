@@ -8,10 +8,10 @@ resource "aws_vpc" "app_vpc" {
 ##############################################################
 # web tier
 resource "aws_subnet" "public_subnet_web_tier" {
-  count = length(var.web_tier_cidr_block)
-  vpc_id     = aws_vpc.app_vpc.id
-  cidr_block = var.web_tier_cidr_block[count.index]
-  availability_zone = data.aws_availability_zones.azs.names[count.index]
+  count                   = length(var.web_tier_cidr_block)
+  vpc_id                  = aws_vpc.app_vpc.id
+  cidr_block              = var.web_tier_cidr_block[count.index]
+  availability_zone       = data.aws_availability_zones.azs.names[count.index]
   map_public_ip_on_launch = true
 
   tags = {
@@ -30,7 +30,7 @@ resource "aws_route_table" "public_route_table" {
 
 # Associate public subnets with the public route table
 resource "aws_route_table_association" "public_subnet_association" {
-  count = length(var.web_tier_cidr_block)
+  count          = length(var.web_tier_cidr_block)
   subnet_id      = aws_subnet.public_subnet_web_tier[count.index].id
   route_table_id = aws_route_table.public_route_table.id
 }
@@ -46,16 +46,16 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 # Create a route for the public route table to allow outbound traffic
 resource "aws_route" "public_route" {
-  route_table_id            = aws_route_table.public_route_table.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_internet_gateway.internet_gateway.id
+  route_table_id         = aws_route_table.public_route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.internet_gateway.id
 }
 ##############################################################
 # app tier
 resource "aws_subnet" "private_subnet_app_tier" {
-  count = length(var.app_tier_cidr_block)
-  vpc_id     = aws_vpc.app_vpc.id
-  cidr_block = var.app_tier_cidr_block[count.index]
+  count             = length(var.app_tier_cidr_block)
+  vpc_id            = aws_vpc.app_vpc.id
+  cidr_block        = var.app_tier_cidr_block[count.index]
   availability_zone = data.aws_availability_zones.azs.names[count.index]
 
   tags = {
@@ -74,7 +74,7 @@ resource "aws_route_table" "private_route_table" {
 
 # Associate public subnets with the public route table
 resource "aws_route_table_association" "private_subnet_association" {
-  count = length(var.app_tier_cidr_block)
+  count          = length(var.app_tier_cidr_block)
   subnet_id      = aws_subnet.private_subnet_app_tier[count.index].id
   route_table_id = aws_route_table.private_route_table.id
 }
@@ -82,7 +82,7 @@ resource "aws_route_table_association" "private_subnet_association" {
 
 # Allocate an Elastic IP for the NAT Gateway
 resource "aws_eip" "nat_eip" {
-  domain   = "vpc"
+  domain = "vpc"
 }
 
 # Create a NAT Gateway in the first public subnet
@@ -100,16 +100,16 @@ resource "aws_nat_gateway" "nat_gateway" {
 
 # Create a route for private subnets to allow outbound traffic through the NAT Gateway
 resource "aws_route" "private_route" {
-  route_table_id            = aws_route_table.private_route_table.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_nat_gateway.nat_gateway.id
+  route_table_id         = aws_route_table.private_route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_nat_gateway.nat_gateway.id
 }
 ##############################################################
 # db tier
 resource "aws_subnet" "private_subnet_db_tier" {
-  count = length(var.db_tier_cidr_block)
-  vpc_id     = aws_vpc.app_vpc.id
-  cidr_block = var.db_tier_cidr_block[count.index]
+  count             = length(var.db_tier_cidr_block)
+  vpc_id            = aws_vpc.app_vpc.id
+  cidr_block        = var.db_tier_cidr_block[count.index]
   availability_zone = data.aws_availability_zones.azs.names[count.index]
 
   tags = {
@@ -128,16 +128,16 @@ resource "aws_route_table" "db_route_table" {
 
 # Associate public subnets with the public route table
 resource "aws_route_table_association" "db_private_subnet_association" {
-  count = length(var.db_tier_cidr_block)
+  count          = length(var.db_tier_cidr_block)
   subnet_id      = aws_subnet.private_subnet_db_tier[count.index].id
   route_table_id = aws_route_table.db_route_table.id
 }
 
 # Create a route for private subnets to allow outbound traffic through the NAT Gateway
 resource "aws_route" "db_private_route" {
-  route_table_id            = aws_route_table.db_route_table.id
-  destination_cidr_block    = "0.0.0.0/0"
-  gateway_id = aws_nat_gateway.nat_gateway.id
+  route_table_id         = aws_route_table.db_route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_nat_gateway.nat_gateway.id
 }
 
 # Create a DB subnet group for RDS
