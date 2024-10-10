@@ -63,7 +63,7 @@ resource "aws_subnet" "public_subnet_web_tier" {
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "web tier public-subnet-${element(data.aws_availability_zones.azs.names, count.index)}"
+    Name = "web-tier-public-subnet-${element(data.aws_availability_zones.azs.names, count.index)}"
   }
 }
 
@@ -120,7 +120,7 @@ resource "aws_subnet" "private_subnet_app_tier" {
   availability_zone = data.aws_availability_zones.azs.names[count.index]
 
   tags = {
-    Name = "app tier public-subnet-${element(data.aws_availability_zones.azs.names, count.index)}"
+    Name = "app-tier-private-subnet-${element(data.aws_availability_zones.azs.names, count.index)}"
   }
 }
 

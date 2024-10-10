@@ -26,6 +26,7 @@ resource "aws_security_group" "app_sg" {
 }
 
 # Security group for EC2 instances
+# Security group for EC2 instances
 resource "aws_security_group" "ec2_sg" {
   name        = "Project-EC2-SG"
   description = "Allows ALB to access the EC2 instances"
@@ -38,10 +39,11 @@ resource "aws_security_group" "ec2_sg" {
     protocol        = "tcp"
     security_groups = [aws_security_group.app_sg.id]
   }
+
   ingress {
     description     = "Allow port 8443 traffic from ALB"
-    from_port       = 443
-    to_port         = 443
+    from_port       = 8443  # Change this from 443 to 8443
+    to_port         = 8443
     protocol        = "tcp"
     security_groups = [aws_security_group.app_sg.id]
   }

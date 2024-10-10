@@ -11,13 +11,13 @@ resource "aws_db_subnet_group" "db_subnet_group" {
 
 #Create RDS Amazon Aurora cluster
 resource "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier     = "labvpcdbcluster"
+  cluster_identifier     = "dbcluster"
   engine                 = "aurora-mysql"
-  engine_version         = "5.7.mysql_aurora.2.07.2"
+  engine_version         = "5.7.mysql_aurora.2.11.1"
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
   database_name          = "testing"
   master_username        = "admin"
-  master_password        = "admin"
+  master_password        = "rdscluster"
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
   apply_immediately      = true
   skip_final_snapshot    = true
