@@ -2,7 +2,7 @@
 resource "aws_lb" "app_lb" {
   name               = "app-lb"
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.app-sg.id]
+  security_groups    = [aws_security_group.app_sg.id]
   internal           = false
   ip_address_type    = "ipv4"
   subnets            = aws_subnet.public_subnet_web_tier[*].id
