@@ -45,9 +45,13 @@ This architecture is a secure, scalable, and high-availability deployment in the
    - **DB Route Tables**: Similar to the private subnets, the database route tables direct traffic through the NAT Gateway, providing limited internet access while keeping the databases secure.
 
 ### 5. **Security**
-   - **Security Groups** and **Network ACLs (NACLs)** are configured to control traffic between the tiers.
+   - **Security Groups** are configured to control traffic between the tiers.
      - For example, the web servers in the public subnet can communicate with the application servers in the private subnet, but the databases in the DB tier are only accessible by the application layer.
-   - This design ensures that each tier is isolated from unnecessary traffic while maintaining the necessary communication paths.
+   - This design ensures that each tier is isolated from unnecessary traffic while maintaining the necessary communication paths. 
+   - **Ingress and Egress Rules** are used to limit the flow of traffic:
+     - The **Application Load Balancer (ALB)** only allows inbound traffic from the internet (based on configured ports).
+     - The **EC2 instances** are restricted to only receive traffic from the ALB on specific ports.
+     - The **RDS database** only accepts traffic from the EC2 instances over the database port (3306 for MySQL).
 
 ---
 
@@ -58,24 +62,3 @@ This architecture is a secure, scalable, and high-availability deployment in the
 - **Database Subnets** span across multiple availability zones, supporting Amazon Aurora’s multi-AZ configuration for high availability and failover.
 
 ---
-
-## Cost Optimization
-
-- Using **NAT Gateways** in each availability zone ensures high availability but also incurs additional costs. If cost savings are a priority, consider consolidating to a single NAT Gateway with failover or using **VPC endpoints** for services like S3.
-- For the **DB Tier**, use **VPC endpoints** instead of routing through NAT Gateways when accessing AWS services, as this can reduce costs and increase security.
-
----
-
-## Future Improvements
-
-- **VPC Endpoints**: Consider using VPC endpoints to allow direct, private access to AWS services such as S3 or DynamoDB without needing to route through the internet or NAT Gateways.
-- **Security Groups**: Continuously audit and update security group rules to adhere to the principle of least privilege, ensuring that only necessary traffic is allowed between the tiers.
-
----
-
-## Conclusion
-
-This architecture offers a highly available, secure, and scalable design suitable for a wide range of web-based applications. The use of private subnets, NAT Gateways, and multi-AZ deployment ensures the application can withstand failures, remain secure, and scale efficiently. 
-
-By following this architecture, applications can be deployed with confidence, knowing that both security and availability concerns have been addressed.
-
