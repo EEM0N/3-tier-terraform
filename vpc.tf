@@ -223,13 +223,3 @@ resource "aws_route" "db_private_route_zoneB" {
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_nat_gateway.nat_gateway_2.id
 }
-
-# # Create a DB subnet group for RDS
-# resource "aws_db_subnet_group" "db_subnet_group" {
-#   name       = "db-subnet-group"
-#   subnet_ids = aws_subnet.private_subnet_db_tier[*].id
-
-#   tags = {
-#     Name = "Database Subnet Group"
-#   }
-# }
