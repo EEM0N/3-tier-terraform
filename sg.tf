@@ -19,6 +19,13 @@ resource "aws_security_group" "app_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
+  }
 
   tags = {
     Name = "Project-ALB-SG"
@@ -26,12 +33,12 @@ resource "aws_security_group" "app_sg" {
 }
 
 # Security group for EC2 instances
-# Security group for EC2 instances
 resource "aws_security_group" "ec2_sg" {
   name        = "Project-EC2-SG"
   description = "Allows ALB to access the EC2 instances"
   vpc_id      = aws_vpc.app_vpc.id
 
+  # Allow HTTP traffic from ALB
   ingress {
     description     = "Allow port 80 traffic from ALB"
     from_port       = 80
@@ -40,19 +47,29 @@ resource "aws_security_group" "ec2_sg" {
     security_groups = [aws_security_group.app_sg.id]
   }
 
+  # Allow HTTPS traffic from ALB if needed (changing back to port 443)
   ingress {
-    description     = "Allow port 8443 traffic from ALB"
-    from_port       = 8443  # Change this from 443 to 8443
-    to_port         = 8443
+    description     = "Allow port 443 traffic from ALB"
+    from_port       = 443
+    to_port         = 443
     protocol        = "tcp"
     security_groups = [aws_security_group.app_sg.id]
   }
 
+  # Outbound rules allowing traffic to RDS on port 3306
+  egress {
+    from_port       = 3306
+    to_port         = 3306
+    protocol        = "tcp"
+    security_groups = [aws_security_group.rds_sg.id]
+  }
+
+  # Outbound traffic to the internet, e.g., for updates or external services
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
   }
 
   tags = {
@@ -66,6 +83,7 @@ resource "aws_security_group" "rds_sg" {
   description = "Allows application to access the RDS instances"
   vpc_id      = aws_vpc.app_vpc.id
 
+  # Allow MySQL traffic from EC2 instances
   ingress {
     description     = "Allow port 3306 traffic from EC2 instances"
     from_port       = 3306
@@ -74,6 +92,7 @@ resource "aws_security_group" "rds_sg" {
     security_groups = [aws_security_group.ec2_sg.id]
   }
 
+  # Allow all outbound traffic from RDS (default behavior)
   egress {
     from_port   = 0
     to_port     = 0

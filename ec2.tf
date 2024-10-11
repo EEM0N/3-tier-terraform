@@ -7,6 +7,13 @@ resource "aws_instance" "ec2_web1_tier_1" {
   tags = {
     Name = "Web1-tier-1"
   }
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get install -y curl apache2  # Include apache or nginx installation as per your setup
+    AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+    echo "This instance is running in AZ: $AZ" > /var/www/html/index.html
+  EOF
 }
 
 resource "aws_instance" "ec2_web2_tier_1" {
@@ -17,6 +24,13 @@ resource "aws_instance" "ec2_web2_tier_1" {
   tags = {
     Name = "Web2-tier-1"
   }
+  user_data = <<-EOF
+    #!/bin/bash
+    sudo apt-get update
+    sudo apt-get install -y curl apache2  # Include apache or nginx installation as per your setup
+    AZ=$(curl -s http://169.254.169.254/latest/meta-data/placement/availability-zone)
+    echo "This instance is running in AZ: $AZ" > /var/www/html/index.html
+  EOF
 }
 
 
