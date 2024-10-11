@@ -19,12 +19,12 @@ resource "aws_security_group" "app_sg" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
-  
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow all outbound traffic
+    cidr_blocks = ["0.0.0.0/0"] # Allow all outbound traffic
   }
 
   tags = {
@@ -44,27 +44,27 @@ resource "aws_security_group" "ec2_sg" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    security_groups = [aws_security_group.app_sg.id]
+    cidr_blocks     = [aws_vpc.app_vpc.cidr_block]  
   }
 
-  # Allow HTTPS traffic from ALB if needed (changing back to port 443)
+  # Allow HTTPS traffic from ALB
   ingress {
     description     = "Allow port 443 traffic from ALB"
     from_port       = 443
     to_port         = 443
     protocol        = "tcp"
-    security_groups = [aws_security_group.app_sg.id]
+    cidr_blocks     = [aws_vpc.app_vpc.cidr_block]  
   }
 
-  # Outbound rules allowing traffic to RDS on port 3306
+  # Allow traffic to RDS on port 3306
   egress {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-    security_groups = [aws_security_group.rds_sg.id]
+    cidr_blocks     = [aws_vpc.app_vpc.cidr_block]  # Use VPC CIDR block
   }
 
-  # Outbound traffic to the internet, e.g., for updates or external services
+  # Allow outbound traffic to the internet
   egress {
     from_port   = 0
     to_port     = 0
@@ -89,7 +89,7 @@ resource "aws_security_group" "rds_sg" {
     from_port       = 3306
     to_port         = 3306
     protocol        = "tcp"
-    security_groups = [aws_security_group.ec2_sg.id]
+    cidr_blocks     = [aws_vpc.app_vpc.cidr_block]  
   }
 
   # Allow all outbound traffic from RDS (default behavior)
@@ -104,3 +104,4 @@ resource "aws_security_group" "rds_sg" {
     Name = "Project-RDS-SG"
   }
 }
+
